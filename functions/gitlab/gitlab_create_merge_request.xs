@@ -19,9 +19,9 @@ function "gitlab_create_merge_request" {
         remove_source_branch: $input.remove_source_branch
       }
     }
-    var.update $params { value = $params|set_ifnotnull:"description":$input.description }
-    var.update $params { value = $params|set_ifnotnull:"assignee_id":$input.assignee_id }
-    var.update $params { value = $params|set_ifnotnull:"labels":$input.labels }
+    var.update $params { value = $params|set_ifnotempty:"description":$input.description }
+    var.update $params { value = $params|set_ifnotempty:"assignee_id":$input.assignee_id }
+    var.update $params { value = $params|set_ifnotempty:"labels":$input.labels }
 
     api.request {
       url = "https://gitlab.com/api/v4/projects/" ~ $input.project_id ~ "/merge_requests"
@@ -35,7 +35,7 @@ function "gitlab_create_merge_request" {
 
     precondition ($api_result.response.status == 201) {
       error_type = "standard"
-      error = "GitLab API error: " ~ $api_result.response.result
+      error = "GitLab API error: " ~ ($api_result.response.result|json_encode)
     }
 
     var $result { value = $api_result.response.result }

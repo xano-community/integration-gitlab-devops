@@ -16,10 +16,10 @@ function "gitlab_create_issue" {
         confidential: $input.confidential
       }
     }
-    var.update $params { value = $params|set_ifnotnull:"description":$input.description }
-    var.update $params { value = $params|set_ifnotnull:"labels":$input.labels }
-    var.update $params { value = $params|set_ifnotnull:"assignee_ids":$input.assignee_ids }
-    var.update $params { value = $params|set_ifnotnull:"due_date":$input.due_date }
+    var.update $params { value = $params|set_ifnotempty:"description":$input.description }
+    var.update $params { value = $params|set_ifnotempty:"labels":$input.labels }
+    var.update $params { value = $params|set_ifnotempty:"assignee_ids":$input.assignee_ids }
+    var.update $params { value = $params|set_ifnotempty:"due_date":$input.due_date }
 
     api.request {
       url = "https://gitlab.com/api/v4/projects/" ~ $input.project_id ~ "/issues"
@@ -33,7 +33,7 @@ function "gitlab_create_issue" {
 
     precondition ($api_result.response.status == 201) {
       error_type = "standard"
-      error = "GitLab API error: " ~ $api_result.response.result
+      error = "GitLab API error: " ~ ($api_result.response.result|json_encode)
     }
 
     var $result { value = $api_result.response.result }

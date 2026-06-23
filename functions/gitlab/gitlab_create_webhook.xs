@@ -19,7 +19,7 @@ function "gitlab_create_webhook" {
         enable_ssl_verification: $input.enable_ssl_verification
       }
     }
-    var.update $params { value = $params|set_ifnotnull:"token":$input.token }
+    var.update $params { value = $params|set_ifnotempty:"token":$input.token }
 
     api.request {
       url = "https://gitlab.com/api/v4/projects/" ~ $input.project_id ~ "/hooks"
@@ -33,7 +33,7 @@ function "gitlab_create_webhook" {
 
     precondition ($api_result.response.status == 201) {
       error_type = "standard"
-      error = "GitLab API error: " ~ $api_result.response.result
+      error = "GitLab API error: " ~ ($api_result.response.result|json_encode)
     }
 
     var $result { value = $api_result.response.result }

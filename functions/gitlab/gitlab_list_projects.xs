@@ -31,7 +31,7 @@ function "gitlab_list_projects" {
 
     precondition ($api_result.response.status == 200) {
       error_type = "standard"
-      error = "GitLab API error: " ~ $api_result.response.result
+      error = "GitLab API error: " ~ ($api_result.response.result|json_encode)
     }
 
     var $result { value = $api_result.response.result }
